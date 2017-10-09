@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>用键盘控制div</title>
+	<style type="text/css">
+		body{
+			margin: 0;
+		}
+		#top{
+			height:20px;
+			width:100%;
+			/*margin-top: 20px;*/
+			background-color: gray;
+			clear:both;
+		}
+		#ball{
+			position: absolute;
+			top:200px;
+			left:100px;
+			height: 50px;
+			width: 50px;
+			border-radius: 25px;
+			background-color: red;
+		}
+		#box{
+			position: absolute;
+			bottom:100px;
+			left:100px;
+			height: 20px;
+			width: 200px;
+			background-color: gray;
+		}
+		#game{
+			height: 80px;
+			width: 40%;
+			font-size: 60px;
+			text-align: left;
+			font-weight: bold;
+			line-height: 80px;
+			float:left;
+		}
+	</style>
+</head>
+<body>
+	<div>
+		<div id="game">Start</div>
+	</div>
+	<div id="top"></div>
+	<div id="ball"></div>
+	<div id="box"></div>
+	<script type="text/javascript">
+		window.onload = function(){
+			
+			var top = document.getElementById('top');
+			var ball = document.getElementById('ball');
+			var box = document.getElementById('box');
+			var topInc = 10;
+			var leftInc = 2;
+			var doc = [document.documentElement.clientWidth,document.documentElement.clientHeight];
+
+			document.onkeydown = function(event){
+				var event = event || window.event;
+				/*console.log(event.keyCode);*/
+				switch(event.keyCode){
+					case 37:
+						box.style.left = box.offsetLeft - 20 + "px";
+						limit();
+						break;
+					case 39:
+						box.style.left = box.offsetLeft + 20 + "px";
+						limit();
+						break;
+				}
+			}
+
+			var time = setInterval(function(){
+				ball.style.left = ball.offsetLeft + leftInc + "px";
+				ball.style.top = ball.offsetTop + topInc + "px";
+				//防止两侧溢出
+				(ball.offsetLeft <= 0 || ball.offsetLeft >= doc[0] - ball.offsetWidth) && (leftInc = -leftInc);
+				//碰撞检测
+				isTouched();
+			},30);
+
+			function isTouched(){
+				//检测触碰底板的时候
+				if((ball.offsetTop + ball.offsetWidth > box.offsetTop) && (ball.offsetLeft + ball.offsetWidth / 2 >= box.offsetLeft) && (ball.offsetLeft + ball.offsetWidth / 2 <= box.offsetLeft + box.offsetWidth)){
+					topInc = -topInc;
+					leftInc = Math.round(Math.random()* 5) - 2;
+				//检测触碰顶板的时候
+				}else if(ball.offsetTop < top.offsetTop + top.offsetHeight){
+					topInc = -topInc;
+				}else if((ball.offsetTop + ball.offsetWidth > box.offsetTop) && (ball.offsetLeft + ball.offsetWidth / 2 <= box.offsetLeft || ball.offsetLeft + ball.offsetWidth / 2 >= box.offsetLeft + box.offsetWidth)){
+					clearInterval(time);
+					gameover();
+				}
+			}
+
+			function limit(){
+				//防止左侧溢出
+				box.offsetLeft <= 0 && (box.style.left = 0);
+				//防止右侧溢出
+				box.offsetLeft >= doc[0] - box.offsetWidth && (box.style.left = doc[0] - box.offsetWidth + "px");
+			}
+
+			function gameover(){
+				var game = document.getElementById('game');
+				game.innerHTML = 'Game Over !!';
+			}
+		};
+	</script>
+</body>
+</html>
